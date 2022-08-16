@@ -37,6 +37,7 @@ func seed(path string, database *data.Database) {
 
 	type InputSymmetric struct {
 		Aes []cmk.AesKey `yaml:"Aes"`
+		Mac []cmk.MacKey `yaml:"Mac"`
 	}
 	type InputAsymmetric struct {
 		Rsa []cmk.RsaKey `yaml:"Rsa"`
@@ -46,10 +47,6 @@ func seed(path string, database *data.Database) {
 	type InputKeys struct {
 		Symmetric  InputSymmetric  `yaml:"Symmetric"`
 		Asymmetric InputAsymmetric `yaml:"Asymmetric"`
-	}
-
-	type InputMac struct {
-		Mac []cmk.MacKey `yaml:"Mac"`
 	}
 
 	type Input struct {
@@ -62,6 +59,7 @@ func seed(path string, database *data.Database) {
 	var eccKeys []cmk.EccKey
 	var rsaKeys []cmk.RsaKey
 	var aesKeys []cmk.AesKey
+	var macKeys []cmk.MacKey
 	var aliases []data.Alias
 
 	err = yaml.Unmarshal([]byte(context), &seed)
@@ -114,6 +112,9 @@ func seed(path string, database *data.Database) {
 		for _, alias := range seed.Aliases {
 			aliases = append(aliases, alias)
 		}
+		for _, key := range seed.Keys.Symmetric.Mac {
+			macKeys = append(macKeys, key)
+		}
 	}
 
 	logger.Infof("Importing data from seed file %s\n", path)
@@ -139,6 +140,12 @@ func seed(path string, database *data.Database) {
 		}
 	}
 	for _, key := range eccKeys {
+		if keyIsNew(database, &key.Metadata) {
+			database.SaveKey(&key)
+			keysAdded++
+		}
+	}
+	for _, key := range macKeys {
 		if keyIsNew(database, &key.Metadata) {
 			database.SaveKey(&key)
 			keysAdded++
