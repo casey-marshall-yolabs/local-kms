@@ -184,6 +184,20 @@ func (r *RequestHandler) CreateKey() Response {
 			return NewInternalFailureExceptionResponse(err.Error())
 		}
 
+	case "HMAC_224", "HMAC_256", "HMAC_384", "HMAC_512":
+
+		if body.KeyUsage == nil || *body.KeyUsage != "GENERATE_VERIFY_MAC" {
+			msg := fmt.Sprintf("You must specify GENERATE_VERIFY_MAC KeyUsage for MAC keys.")
+			r.logger.Warnf(msg)
+			return NewValidationExceptionResponse(msg)
+		}
+
+		key, err = cmk.NewMacKey(metadata, *body.Policy, cmk.KeyOrigin(*body.Origin), cmk.KeySpec(*body.KeySpec))
+		if err != nil {
+			r.logger.Error(err)
+			return NewInternalFailureExceptionResponse(err.Error())
+		}
+
 	default:
 
 		msg := fmt.Sprintf("1 validation error detected: Value '%s' at 'KeySpec' "+

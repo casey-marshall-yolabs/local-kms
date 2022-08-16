@@ -3,8 +3,9 @@ package cmk
 import (
 	"crypto/rsa"
 	"fmt"
-	"github.com/nsmithuk/local-kms/src/config"
 	"time"
+
+	"github.com/nsmithuk/local-kms/src/config"
 )
 
 //------------------------------------------
@@ -15,6 +16,7 @@ const (
 	TypeAes KeyType = iota
 	TypeRsa
 	TypeEcc
+	TypeMac
 )
 
 //---
@@ -30,6 +32,10 @@ const (
 	SpecRsa2048          KeySpec = "RSA_2048"
 	SpecRsa3072          KeySpec = "RSA_3072"
 	SpecRsa4096          KeySpec = "RSA_4096"
+	SpecHmacSHA224       KeySpec = "HMAC_224"
+	SpecHmacSHA256       KeySpec = "HMAC_256"
+	SpecHmacSHA384       KeySpec = "HMAC_384"
+	SpecHmacSHA512       KeySpec = "HMAC_512"
 )
 
 //---
@@ -60,6 +66,27 @@ const (
 
 //---
 
+type MacAlgorithm string
+
+const (
+	MacAlgorithmHmacSHA224 MacAlgorithm = "HMAC_SHA_224"
+	MacAlgorithmHmacSHA256 MacAlgorithm = "HMAC_SHA_256"
+	MacAlgorithmHmacSHA384 MacAlgorithm = "HMAC_SHA_384"
+	MacAlgorithmHmacSHA512 MacAlgorithm = "HMAC_SHA_512"
+)
+
+//---
+
+type MacParameterSpec string
+
+const (
+	MacParameterSpecHmacSha256 MacParameterSpec = "HMAC-SHA-256"
+	MacParameterSpecHmacSha384 MacParameterSpec = "HMAC-SHA-384"
+	MacParameterSpecHmacSha512 MacParameterSpec = "HMAC-SHA-512"
+)
+
+//---
+
 type KeyState string
 
 const (
@@ -75,8 +102,9 @@ const (
 type KeyUsage string
 
 const (
-	UsageEncryptDecrypt KeyUsage = "ENCRYPT_DECRYPT"
-	UsageSignVerify     KeyUsage = "SIGN_VERIFY"
+	UsageEncryptDecrypt    KeyUsage = "ENCRYPT_DECRYPT"
+	UsageSignVerify        KeyUsage = "SIGN_VERIFY"
+	UsageGenerateVerifyMac KeyUsage = "GENERATE_VERIFY_MAC"
 )
 
 //---
@@ -150,6 +178,7 @@ type KeyMetadata struct {
 
 	SigningAlgorithms     []SigningAlgorithm    `json:",omitempty"`
 	EncryptionAlgorithms  []EncryptionAlgorithm `json:",omitempty"`
+	MacAlgorithms         []MacAlgorithm        `json:",omitempty"`
 	KeySpec               KeySpec               `json:",omitempty"`
 	CustomerMasterKeySpec KeySpec               `json:",omitempty"`
 }

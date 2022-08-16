@@ -51,6 +51,9 @@ func (d *Database) LoadKey(arn string) (cmk.Key, error) {
 	case *cmk.RsaKey:
 		// This section/switch isn't really needed?
 		key = k
+	case *cmk.MacKey:
+		// This section/switch isn't really needed?
+		key = k
 	default:
 		return nil, errors.New("key type not supported")
 	}
@@ -167,6 +170,8 @@ func unmarshalKey(encoded []byte) (cmk.Key, error) {
 		key = new(cmk.EccKey)
 	case cmk.TypeRsa:
 		key = new(cmk.RsaKey)
+	case cmk.TypeMac:
+		key = new(cmk.MacKey)
 	default:
 		return nil, errors.New("key type not yet supported")
 	}
