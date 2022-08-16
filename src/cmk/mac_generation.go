@@ -10,7 +10,7 @@ import (
 )
 
 func (k *MacKey) GenerateMac(input []byte, macAlgorithm string) (macResult []byte, err error) {
-	key := k.BackingKeys[0]
+	key := k.BackingKey
 
 	var h func() hash.Hash
 	switch MacAlgorithm(macAlgorithm) {

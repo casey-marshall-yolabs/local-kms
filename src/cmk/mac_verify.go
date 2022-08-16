@@ -11,7 +11,7 @@ import (
 )
 
 func (k *MacKey) VerifyMac(input []byte, digest []byte, macAlgorithm string) (success bool, err error) {
-	key := k.BackingKeys[0]
+	key := k.BackingKey
 
 	var h func() hash.Hash
 	switch MacAlgorithm(macAlgorithm) {
